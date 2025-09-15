@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: club-connect-api
+    env: node
+    rootDir: server
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_ORIGIN
+        value: https://club-connect-seven.vercel.app
+      - key: PORT
+        value: 4000
+    postdeploy:
+      - npm run migrate:deploy
+
