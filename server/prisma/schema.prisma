@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  role      Role     @default(STUDENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  applications Application[]
+  organizations Organization[] @relation("OrganizerUsers")
+}
+
+model Organization {
+  id           Int           @id @default(autoincrement())
+  name         String
+  description  String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  organizers   User[]        @relation("OrganizerUsers")
+  recruitments Recruitment[]
+}
+
+model Recruitment {
+  id           Int        @id @default(autoincrement())
+  title        String
+  deadline     DateTime
+  status       Status     @default(ACTIVE)
+  posts        Json       // JSON array of posts
+  questions    Json?
+  whatsappLink String?
+  organization Organization @relation(fields: [organizationId], references: [id])
+  organizationId Int
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  applications Application[]
+}
+
+model Application {
+  id             Int         @id @default(autoincrement())
+  applicant      User        @relation(fields: [applicantId], references: [id])
+  applicantId    Int
+  recruitment    Recruitment @relation(fields: [recruitmentId], references: [id])
+  recruitmentId  Int
+  selectedPost   String
+  answers        Json
+  createdAt      DateTime    @default(now())
+}
+
+enum Role {
+  STUDENT
+  ORGANIZER
+  ADMIN
+}
+
+enum Status {
+  ACTIVE
+  PAUSED
+  CLOSED
+}
+
+
